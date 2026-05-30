@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The MCS Spot - Past Papers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header-position">
+        <h1>THE <i><span>MCS</span></i> SPOT</h1>
+        <nav>
+            <a href="Home.html">Home</a>
+            <a href="Notes.html">Notes</a>
+            <a href="Past-Papers.html" class="active">Past-Papers</a>
+            <a href="Blog.html">Blogs</a>
+            <a href="Events-Pic.html">Events</a>
+            <a href="Community-Chat.html">Community Pages</a>
+        </nav>
+    </div>
+
+    <!-- Past Papers Header -->
+    <div class="notes-header">
+        <h1>Past Papers</h1>
+        <p>Download previous exam papers for MCS program</p>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search past papers by subject...">
+            <button onclick="searchPapers()">Search</button>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterSemester('all')">All</button>
+            <button class="filter-btn" onclick="filterSemester('Semester 1')">Sem 1</button>
+            <button class="filter-btn" onclick="filterSemester('Semester 2')">Sem 2</button>
+            <button class="filter-btn" onclick="filterSemester('Semester 3')">Sem 3</button>
+            <button class="filter-btn" onclick="filterSemester('Semester 4')">Sem 4</button>
+            <button class="filter-btn" onclick="filterSemester('Semester 5')">Sem 5</button>
+            <button class="filter-btn" onclick="filterSemester('Semester 6')">Sem 6</button>
+            <button class="filter-btn" onclick="filterSemester('Semester 7')">Sem 7</button>
+            <button class="filter-btn" onclick="filterSemester('Semester 8')">Sem 8</button>
+        </div>
+    </div>
+
+    <!-- Past Papers Container -->
+    <div id="papersContainer" class="semester-section">
+        <div class="loading">Loading past papers from Firebase...</div>
+    </div>
+
+    <!-- Contribute Section -->
+    <div class="contribute-section">
+        <h2>Share Past Papers</h2>
+        <p>Upload to Google Drive, then paste the shareable link here</p>
+
+        <div class="contribute-form">
+            <input type="text" id="subjectName" placeholder="Subject & Year (e.g., Media Theories 2023)">
+            <select id="semesterSelect">
+                <option value="">Select Semester</option>
+                <option>Semester 1</option>
+                <option>Semester 2</option>
+                <option>Semester 3</option>
+                <option>Semester 4</option>
+                <option>Semester 5</option>
+                <option>Semester 6</option>
+                <option>Semester 7</option>
+                <option>Semester 8</option>
+            </select>
+            <select id="examTypeSelect">
+                <option value="">Select Exam Type</option>
+                <option>Mid Term</option>
+                <option>Final Exam</option>
+                <option>Quiz</option>
+                <option>Assignment</option>
+                <option>Practical</option>
+            </select>
+            <input type="url" id="driveLink" placeholder="Google Drive Shareable Link">
+            <div class="drive-link-hint">
+                Tip: In Google Drive, right-click file -> "Share" -> "General access" -> "Anyone with the link" -> Copy link
+            </div>
+            <button onclick="uploadPaper()">Share Paper</button>
+            <div id="successMsg" class="success-msg">Paper shared successfully!</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGNckn0K7w2bqcsdHgZiE74qjQK-OdcYE",
+            authDomain: "the-mcs-spot.firebaseapp.com",
+            projectId: "the-mcs-spot",
+            storageBucket: "the-mcs-spot.firebasestorage.app",
+            messagingSenderId: "670130286214",
+            appId: "1:670130286214:web:c480f810ac47d2e7d72b07"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allPapers = [];
+
+        async function loadPapers() {
+            const container = document.getElementById('papersContainer');
+            container.innerHTML = '<div class="loading">Loading past papers from Firebase...</div>';
+
+            try {
+                const q = query(collection(db, "pastpapers"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                allPapers = [];
+                querySnapshot.forEach((doc) => {
+                    allPapers.push({ id: doc.id, ...doc.data() });
+                });
+                displayPapers(allPapers);
+            } catch (error) {
+                console.error("Error loading papers:", error);
+                container.innerHTML = '<div class="loading">Error loading past papers.</div>';
+            }
+        }
+
+        function displayPapers(papers) {
+            const container = document.getElementById('papersContainer');
+
+            if (papers.length === 0) {
+                container.innerHTML = '<div class="loading">No past papers yet. Be the first to share!</div>';
+                return;
+            }
+
+            const semesterGroups = {
+                "Semester 1": [], "Semester 2": [], "Semester 3": [],
+                "Semester 4": [], "Semester 5": [], "Semester 6": [],
+                "Semester 7": [], "Semester 8": []
+            };
+
+            papers.forEach(paper => {
+                if (semesterGroups[paper.semester]) {
+                    semesterGroups[paper.semester].push(paper);
+                }
+            });
+
+            let html = '';
+            for (let sem in semesterGroups) {
+                if (semesterGroups[sem].length > 0) {
+                    html += '<h2 class="semester-title">' + sem + '</h2>';
+                    html += '<div class="subjects-grid">';
+                    semesterGroups[sem].forEach(paper => {
+                        const deleteButton = '<button class="delete-btn" onclick="window.deletePaper(\'' + paper.id + '\')">Delete</button>';
+                        html += `
+                            <div class="subject-card">
+                                <div class="subject-title">` + escapeHtml(paper.subject) + `</div>
+                                <div class="subject-info">` + escapeHtml(paper.examType || 'Exam') + ` • ` + (paper.downloads ? paper.downloads + ' downloads' : 'New') + `</div>
+                                <button class="view-btn" onclick="window.open('` + paper.fileUrl + `', '_blank')">Open in Google Drive</button>
+                                ` + deleteButton + `
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        window.uploadPaper = async function () {
+            const subject = document.getElementById('subjectName').value;
+            const semester = document.getElementById('semesterSelect').value;
+            const examType = document.getElementById('examTypeSelect').value;
+            const driveLink = document.getElementById('driveLink').value;
+
+            if (!subject || !semester || !examType || !driveLink) {
+                alert('Please fill all fields!');
+                return;
+            }
+
+            const msgDiv = document.getElementById('successMsg');
+            msgDiv.style.display = 'block';
+            msgDiv.style.color = '#ffaa00';
+            msgDiv.textContent = 'Sharing past paper...';
+
+            try {
+                await addDoc(collection(db, "pastpapers"), {
+                    subject: subject,
+                    semester: semester,
+                    examType: examType,
+                    fileUrl: driveLink,
+                    isGoogleDrive: true,
+                    downloads: 0,
+                    timestamp: new Date().toISOString()
+                });
+
+                msgDiv.style.color = '#4caf50';
+                msgDiv.textContent = 'Past paper shared successfully!';
+                document.getElementById('subjectName').value = '';
+                document.getElementById('semesterSelect').value = '';
+                document.getElementById('examTypeSelect').value = '';
+                document.getElementById('driveLink').value = '';
+                await loadPapers();
+                setTimeout(() => {
+                    msgDiv.style.display = 'none';
+                }, 3000);
+            } catch (error) {
+                msgDiv.style.color = '#ff4444';
+                msgDiv.textContent = 'Error sharing past paper.';
+            }
+        };
+
+        window.deletePaper = async function (paperId) {
+            if (confirm('Delete this past paper?')) {
+                await deleteDoc(doc(db, "pastpapers", paperId));
+                await loadPapers();
+                alert('Deleted!');
+            }
+        };
+
+        window.searchPapers = function () {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            if (!term) {
+                displayPapers(allPapers);
+                return;
+            }
+            const filtered = allPapers.filter(paper => paper.subject.toLowerCase().includes(term));
+            displayPapers(filtered);
+        };
+
+        window.filterSemester = function (semester) {
+            const btns = document.querySelectorAll('.filter-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) event.target.classList.add('active');
+
+            if (semester === 'all') {
+                displayPapers(allPapers);
+            } else {
+                const filtered = allPapers.filter(paper => paper.semester === semester);
+                displayPapers(filtered);
+            }
+        };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        loadPapers();
+    </script>
+</body>
+
+</html>

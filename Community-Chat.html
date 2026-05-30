@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The MCS Spot - Community Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header-position">
+        <h1>THE <i><span>MCS</span></i> SPOT</h1>
+        <nav>
+            <a href="Home.html">Home</a>
+            <a href="Notes.html">Notes</a>
+            <a href="Past-Papers.html">Past-Papers</a>
+            <a href="Blog.html">Blogs</a>
+            <a href="Events-Pic.html">Events</a>
+            <a href="Community-Chat.html" class="active">Community Pages</a>
+        </nav>
+    </div>
+
+    <!-- Chat Header -->
+    <div class="notes-header">
+        <h1>Community Chat</h1>
+        <p>Connect with your batch mates in real-time</p>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container" style="margin: 30px auto;">
+        <!-- Join Section -->
+        <div class="join-section" id="joinSection">
+            <input type="text" id="usernameInput" placeholder="Enter your name to join chat...">
+            <button onclick="joinChat()">Join Chat</button>
+        </div>
+
+        <!-- Chat Area (Hidden until joined) -->
+        <div id="chatArea" style="display: none;">
+            <div class="chat-header">
+                <h2>💬 Live Chat</h2>
+                <p>Be respectful and helpful to your batch mates</p>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <div style="text-align: center; color: #888; padding: 20px;">Loading messages...</div>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="messageInput" placeholder="Type your message..." disabled>
+                <button id="sendBtn" onclick="sendMessage()" disabled>Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGNckn0K7w2bqcsdHgZiE74qjQK-OdcYE",
+            authDomain: "the-mcs-spot.firebaseapp.com",
+            projectId: "the-mcs-spot",
+            storageBucket: "the-mcs-spot.firebasestorage.app",
+            messagingSenderId: "670130286214",
+            appId: "1:670130286214:web:c480f810ac47d2e7d72b07"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let allMessages = [];
+
+        // Join chat function
+        window.joinChat = function() {
+            const username = document.getElementById('usernameInput').value.trim();
+            if (!username) {
+                alert('Please enter your name to join the chat');
+                return;
+            }
+            
+            currentUser = username;
+            
+            // Hide join section, show chat area
+            document.getElementById('joinSection').style.display = 'none';
+            document.getElementById('chatArea').style.display = 'block';
+            
+            // Enable message input
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+            
+            // Load messages
+            loadMessages();
+        };
+        
+        // Send message
+        window.sendMessage = async function() {
+            if (!currentUser) return;
+            
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            try {
+                await addDoc(collection(db, "chats"), {
+                    username: currentUser,
+                    message: message,
+                    timestamp: new Date().toISOString()
+                });
+                
+                messageInput.value = '';
+            } catch (error) {
+                console.error("Error sending message:", error);
+                alert('Error sending message. Please try again.');
+            }
+        };
+        
+        // Load messages real-time
+        function loadMessages() {
+            const q = query(collection(db, "chats"), orderBy("timestamp", "asc"));
+            
+            onSnapshot(q, (querySnapshot) => {
+                allMessages = [];
+                querySnapshot.forEach((doc) => {
+                    allMessages.push({ id: doc.id, ...doc.data() });
+                });
+                displayMessages();
+            });
+        }
+        
+        // Display messages
+        function displayMessages() {
+            const container = document.getElementById('messagesContainer');
+            
+            if (allMessages.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">No messages yet. Be the first to say something!</div>';
+                return;
+            }
+            
+            let html = '';
+            allMessages.forEach(msg => {
+                const isOwn = currentUser === msg.username;
+                const time = formatTime(msg.timestamp);
+                
+                html += `
+                    <div class="message ${isOwn ? 'own' : 'other'}">
+                        <div class="message-bubble">${escapeHtml(msg.message)}</div>
+                        <div class="message-info">${escapeHtml(msg.username)} • ${time}</div>
+                        <button class="delete-chat-btn" onclick="deleteMessage('${msg.id}')">Delete</button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Delete message (admin only)
+        window.deleteMessage = async function(messageId) {
+            // Admin email check (optional - remove if you want anyone to delete)
+            if (currentUser === 'Admin' || currentUser === 'ShanShah') {
+                if (confirm('Delete this message?')) {
+                    await deleteDoc(doc(db, "chats", messageId));
+                }
+            } else {
+                alert('Only admin can delete messages');
+            }
+        };
+        
+        // Format time
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Just now';
+            try {
+                const date = new Date(timestamp);
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch(e) {
+                return 'Unknown time';
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // Send on Enter key
+        document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && currentUser) {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+
+</html>
