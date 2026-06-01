@@ -1,310 +1,1465 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: black;
+}
+
+/* Header */
+.header-position {
+    display: flex;
+    align-items: center;
+    padding: 40px 30px;
+    background: linear-gradient(90deg, rgb(161, 19, 19), rgb(160, 39, 39));
+    justify-content: space-between;
+}
+
+.header-position h1 {
+    font-weight: 300;
+    text-decoration: underline;
+    text-decoration-color: antiquewhite;
+    cursor: default;
+}
+
+.header-position span {
+    color: aliceblue;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 45px;
+}
+
+.header-position nav a {
+    position: relative;
+    text-decoration: none;
+    color: black;
+    font-family: poppins, sans-serif;
+}
+
+.header-position nav {
+    display: flex;
+    gap: 20px;
+}
+
+.header-position nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0%;
+    height: 2px;
+    background: white;
+    transition: 0.3s ease;
+}
+
+.header-position nav a:hover {
+    color: white;
+}
+
+.header-position nav a:hover::after {
+    width: 100%;
+}
+
+/* HOme.html */
+.Home-content {
+    padding: 50px 10px;
+    flex: 1;
+    text-align: left;
+    animation: fadeUp 1.2s ease-in-out;
+    background-color: rgb(243, 235, 225);
+}
+
+.Home-content h1 {
+    font-size: 50px;
+    margin-left: 55px;
+    margin-bottom: 5px;
+    animation: fadeSlide 1.3s ease-in-out;
+}
+
+.Home-content h2 {
+    font-size: 50px;
+    margin-left: 55px;
+    margin-bottom: 20px;
+    animation: faseSlide 1.3s ease-in-out;
+}
+
+.Home-content span {
+    color: aliceblue;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 75px;
+    font-weight: 300;
+}
+
+.Home-content p {
+    margin-top: 50px;
+    margin-left: 60px;
+    max-width: 400px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    cursor: default;
+}
+
+.Home-content img {
+    width: 500px;
+    height: 500px;
+    margin-top: 70px;
+    margin-right: 90px;
+    border-radius: 90%;
+    border: 5px solid #101313d5;
+    box-shadow: 0 0 30px #00000063;
+    object-fit: cover;
+    float: right;
+    margin-left: 15px;
+    animation: fadeIn 2s ease-in-out;
+}
+
+.stats-section {
+    background: linear-gradient(90deg, rgb(161, 19, 19), rgb(136, 36, 36));
+    padding: 60px 30px;
+    text-align: center;
+}
+
+.stats-section h2 {
+    font-size: 36px;
+    color: white;
+    margin-bottom: 100px;
+    font-weight: 400;
+    text-decoration: underline;
+}
+
+.stats-section span {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 48px;
+    font-weight: 200;
+}
+
+.stats-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 50px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.box {
+    text-align: center;
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease;
+    min-width: 150px;
+    margin: 0;
+}
+
+.box:hover {
+    transform: translateY(-10px);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.stat-number {
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    font-size: 18px;
+    color: #f0f0f0;
+    font-weight: 500;
+}
+
+.special-section {
+    padding: 100px 30px;
+    background-color: white;
+    text-align: center;
+}
+
+.special-section h2 {
+    font-size: 36px;
+    color: rgb(153, 41, 41);
+    margin-bottom: 50px;
+    font-weight: 400;
+    text-decoration: underline;
+}
+
+.special-section span {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 48px;
+    font-weight: 200;
+}
+
+.special-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    background: rgb(173, 159, 159);
+    padding: 30px 25px;
+    border-radius: 20px;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: rgb(153, 41, 41);
+}
+
+.card p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #350505;
+    margin: 0;
+    padding: 0;
+}
+
+.link-section {
+    background: #666666;
+    padding: 50px 30px;
+    text-align: center;
+    color: white;
+}
+
+.link-section h2 {
+    font-size: 42px;
+    margin-bottom: 15px;
+}
+
+.link-section p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.link-section p span {
+    color: aliceblue;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 34px;
+    font-weight: 100;
+}
+
+.link-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.link-buttons button {
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.primary-button {
+    background: rgb(236, 202, 202);
+    transform: scale(1.05);
+}
+
+.primary-button:hover {
+    background: rgb(173, 159, 159);
+    transform: scale(1.05);
+}
+
+/* Notes.html, Past-Paper.html */
+
+
+.notes-header {
+    background: linear-gradient(135deg, rgb(153, 41, 41), rgb(190, 60, 60));
+    padding: 40px 30px;
+    text-align: center;
+    color: white;
+}
+
+.notes-header h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.notes-header p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.search-section {
+    padding: 30px;
+    background: white;
+    border-bottom: 1px solid white;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 15px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 16px;
+}
+
+.search-bar button {
+    padding: 15px 30px;
+    background: rgb(153, 41, 41);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.filter-btn {
+    padding: 8px 20px;
+    background: white;
+    border: 2px solid rgb(153, 41, 41);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: rgb(153, 41, 41);
+    color: white;
+}
+
+.semester-section {
+    padding: 40px 30px;
+    background: rgb(243, 235, 225);
+}
+
+.semester-section {
+    padding: 40px 30px;
+    background: rgb(243, 235, 225);
+}
+
+.semester-title {
+    font-size: 32px;
+    color: rgb(153, 41, 41);
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid rgb(153, 41, 41);
+    display: inline-block;
+}
+
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.subject-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.subject-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.subject-info {
+    display: flex;
+    gap: 15px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.view-btn {
+    background: rgb(153, 41, 41);
+    color: white;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: 0.3s;
+}
+
+.view-btn:hover {
+    background: rgb(190, 60, 60);
+}
+
+.delete-btn {
+    background: #dc2626;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.delete-btn:hover {
+    background: #b91c1c;
+}
+
+.contribute-section {
+    color: white;
+    text-align: center;
+}
+
+.contribute-section h2 {
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.contribute-form {
+    max-width: 500px;
+    margin: 30px auto 0;
+}
+
+.contribute-form input,
+.contribute-form select {
+    width: 100%;
+    padding: 14px 18px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.contribute-form button {
+    background: rgb(153, 41, 41);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.contribute-form button:hover {
+    background: rgb(190, 60, 60);
+}
+
+.success-msg {
+    margin-top: 15px;
+    color: #4caf50;
+    display: none;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+}
+
+.drive-link-hint {
+    font-size: 12px;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    color: #ccc;
+}
+
+/* blog.html */
+
+.blogs-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.blog-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.blog-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.blog-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: rgb(153, 41, 41);
+    margin-bottom: 8px;
+}
+
+.blog-meta {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.blog-content {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.blog-content-full {
+    display: none;
+}
+
+.blog-content-full.show {
+    display: block;
+}
+
+.read-more-btn {
+    background: transparent;
+    color: rgb(153, 41, 41);
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0;
+    margin-top: 5px;
+}
+
+.read-more-btn:hover {
+    text-decoration: underline;
+    background: transparent;
+}
+
+.blog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.like-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.like-btn {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+    padding: 5px 10px;
+    border-radius: 30px;
+}
+
+.like-btn:hover {
+    transform: scale(1.1);
+    background: #f0f0f0;
+}
+
+.like-count {
+    font-size: 14px;
+    color: #666;
+}
+
+.delete-blog-btn {
+    background: #dc2626;
+    color: white;
+    padding: 6px 15px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.delete-blog-btn:hover {
+    background: #b91c1c;
+}
+
+.write-blog-section {
+    padding: 40px 30px;
+    color: white;
+    text-align: center;
+}
+
+.blog-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.blog-form input,
+.blog-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+.blog-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.blog-form button {
+    background: rgb(153, 41, 41);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.blog-form button:hover {
+    background: rgb(190, 60, 60);
+}
+
+/* Events-Pic.html */
+
+.events-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.event-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.event-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: rgb(153, 41, 41);
+    margin-bottom: 10px;
+}
+
+.event-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    color: #666;
+}
+
+.event-location,
+.event-date {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.event-description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.event-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.event-photo {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #f0f0f0;
+    transition: 0.3s;
+}
+
+.event-photo:hover {
+    transform: scale(1.02);
+}
+
+.event-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.like-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.like-btn {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+    padding: 5px 10px;
+    border-radius: 30px;
+}
+
+.like-btn:hover {
+    transform: scale(1.1);
+    background: #f0f0f0;
+}
+
+.like-count {
+    font-size: 14px;
+    color: #666;
+}
+
+.delete-event-btn {
+    background: #dc2626;
+    color: white;
+    padding: 6px 15px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.delete-event-btn:hover {
+    background: #b91c1c;
+}
+
+.share-event-section {
+    padding: 40px 30px;
+    color: white;
+    text-align: center;
+}
+
+.event-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.event-form input,
+.event-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+.event-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.event-form button {
+    background: rgb(153, 41, 41);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.event-form button:hover {
+    background: rgb(190, 60, 60);
+}
+
+.photo-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.photo-input-group input {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.add-photo-btn {
+    background: #4caf50;
+    padding: 12px 20px;
+    font-size: 14px;
+}
+
+.photo-list {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.photo-tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin: 5px 5px 0 0;
+}
+
+/* Community-Chat.html */
+
+.chat-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgb(243, 235, 225);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+    background: linear-gradient(135deg, rgb(153, 41, 41), rgb(190, 60, 60));
+    padding: 20px 25px;
+    color: white;
+}
+
+.chat-header h2 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.chat-header p {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.join-section {
+    padding: 20px 25px;
+    background: white;
+    border-bottom: 1px solid #eee;
+}
+
+.join-section input {
+    width: 70%;
+    padding: 12px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 30px;
+    font-size: 15px;
+    margin-right: 10px;
+}
+
+.join-section button {
+    padding: 12px 25px;
+    background: rgb(153, 41, 41);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.messages-container {
+    height: 400px;
+    overflow-y: auto;
+    padding: 20px 25px;
+    background: rgb(243, 235, 225);
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.message.own {
+    align-items: flex-end;
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.message.own .message-bubble {
+    background: rgb(153, 41, 41);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message.other .message-bubble {
+    background: white;
+    color: #333;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.message-info {
+    font-size: 11px;
+    color: #888;
+    margin: 3px 10px 0;
+}
+
+.message.own .message-info {
+    text-align: right;
+}
+
+.chat-input-area {
+    padding: 15px 25px;
+    background: white;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 12px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 30px;
+    font-size: 15px;
+}
+
+.chat-input-area button {
+    padding: 12px 25px;
+    background: rgb(153, 41, 41);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.chat-input-area button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.delete-chat-btn {
+    background: #dc2626;
+    color: white;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+/* Footer */
+
+.footer {
+    background: linear-gradient(90deg, rgb(161, 19, 19), rgb(160, 39, 39));
+    color: white;
+    margin-top: 50px;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 30px 30px;
+    gap: 30px;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-section h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: rgb(231, 96, 96);
+}
+
+.footer-section h3 span {
+    color: aliceblue;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 34px;
+    font-weight: 100;
+}
+
+.footer-section h4 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: rgb(219, 88, 88);
+}
+
+.footer-section p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 10px;
+}
+
+.footer-section ul li a {
+    color: #ccc;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.footer-section ul li a:hover {
+    color: rgb(153, 41, 41);
+    padding-left: 5px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 13px;
+    color: #888;
+}
+
+.footer-bottom p {
+    margin: 5px 0;
+}
+
 /* ============================================ */
-/* ADDITIONAL RESPONSIVE FIXES - Events, Chat, Footer */
+/* RESPONSIVE DESIGN - Mobile & Tablet Friendly */
 /* ============================================ */
 
-/* Events Page Responsive */
+/* Tablet View (768px to 1024px) */
+@media (max-width: 1024px) {
+    .Home-content img {
+        width: 350px;
+        height: 350px;
+        margin-right: 40px;
+    }
+
+    .Home-content h1,
+    .Home-content h2 {
+        font-size: 40px;
+        margin-left: 40px;
+    }
+
+    .Home-content p {
+        max-width: 350px;
+        margin-left: 40px;
+    }
+}
+
+/* Mobile View (up to 768px) */
 @media (max-width: 768px) {
-    .events-grid {
+
+    /* Header */
+    .header-position {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px 15px;
+        gap: 15px;
+    }
+
+    .header-position h1 {
+        font-size: 28px;
+    }
+
+    .header-position span {
+        font-size: 32px;
+    }
+
+    .header-position nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .header-position nav a {
+        font-size: 14px;
+        padding: 5px 10px;
+    }
+
+    /* Home Page */
+    .Home-content {
+        padding: 30px 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .Home-content img {
+        float: none;
+        width: 250px;
+        height: 250px;
+        margin: 0 auto 30px auto;
+        display: block;
+        order: -1;
+    }
+
+    .Home-content h1,
+    .Home-content h2 {
+        font-size: 32px;
+        margin-left: 0;
+        text-align: center;
+    }
+
+    .Home-content p {
+        margin-left: 0;
+        margin-top: 20px;
+        padding: 0 15px;
+        max-width: 100%;
+        text-align: center;
+        font-size: 15px;
+    }
+
+    /* Stats Section */
+    .stats-section h2 {
+        font-size: 28px;
+        margin-bottom: 50px;
+    }
+
+    .stats-grid {
         gap: 20px;
     }
-    
-    .event-card {
-        padding: 18px;
+
+    .box {
+        min-width: 120px;
+        padding: 15px 20px;
     }
-    
+
+    .stat-number {
+        font-size: 32px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+    }
+
+    /* Special Section */
+    .special-section h2 {
+        font-size: 28px;
+    }
+
+    .special-grid {
+        gap: 20px;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    /* Link Section */
+    .link-section h2 {
+        font-size: 32px;
+    }
+
+    .link-section p span {
+        font-size: 28px;
+    }
+
+    /* Notes & Past Papers Page */
+    .notes-header h1 {
+        font-size: 32px;
+    }
+
+    .semester-title {
+        font-size: 28px;
+    }
+
+    .subjects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-buttons {
+        gap: 8px;
+    }
+
+    .filter-btn {
+        padding: 6px 15px;
+        font-size: 12px;
+    }
+
+    /* Search Bar */
+    .search-bar {
+        flex-direction: column;
+    }
+
+    .search-bar button {
+        width: 100%;
+    }
+
+    /* Contribute Form */
+    .contribute-section {
+        padding: 40px 20px;
+    }
+
+    .contribute-form {
+        padding: 0 10px;
+    }
+
+    .contribute-form button {
+        width: 100%;
+    }
+
+    /* Blog Page */
+    .blog-title {
+        font-size: 20px;
+    }
+
+    .blog-footer {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .write-blog-section {
+        padding: 30px 20px;
+    }
+
+    .blog-form button {
+        width: 100%;
+    }
+
+    /* Events Page */
     .event-title {
         font-size: 20px;
     }
-    
+
     .event-details {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .event-photos {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 10px;
     }
-    
+
     .event-photo {
         height: 140px;
     }
-    
+
     .share-event-section {
         padding: 30px 20px;
     }
-    
-    .event-form {
-        padding: 0 10px;
+
+    .event-form button {
+        width: 100%;
     }
-    
+
     .photo-input-group {
         flex-direction: column;
     }
-    
+
     .add-photo-btn {
         width: 100%;
     }
-}
 
-/* Chat Page Responsive */
-@media (max-width: 768px) {
+    /* Chat Page */
     .chat-container {
-        margin: 20px 15px;
-        border-radius: 15px;
+        margin: 0 15px;
     }
-    
-    .chat-header {
-        padding: 15px 20px;
-    }
-    
-    .chat-header h2 {
-        font-size: 20px;
-    }
-    
-    .join-section {
-        padding: 15px 20px;
-    }
-    
+
     .join-section input {
         width: 100%;
         margin-bottom: 10px;
         margin-right: 0;
     }
-    
+
     .join-section button {
         width: 100%;
     }
-    
+
     .messages-container {
         height: 350px;
         padding: 15px;
     }
-    
+
     .message-bubble {
         max-width: 85%;
         font-size: 13px;
         padding: 8px 12px;
     }
-    
+
     .chat-input-area {
         flex-direction: column;
-        padding: 12px 15px;
     }
-    
+
     .chat-input-area input {
         width: 100%;
     }
-    
+
     .chat-input-area button {
         width: 100%;
     }
-}
 
-/* Footer Responsive Improvements */
-@media (max-width: 768px) {
+    /* Footer */
     .footer-container {
         flex-direction: column;
         text-align: center;
         padding: 40px 25px 25px;
         gap: 30px;
     }
-    
+
     .footer-section {
         min-width: 100%;
     }
-    
-    .footer-section h3 {
-        font-size: 22px;
-    }
-    
-    .footer-section h3 span {
-        font-size: 30px;
-    }
-    
-    .footer-section h4 {
-        font-size: 18px;
-    }
-    
+
     .footer-section ul li a:hover {
         padding-left: 0;
     }
-    
+}
+
+/* Small Mobile (up to 480px) */
+@media (max-width: 480px) {
+    .header-position h1 {
+        font-size: 24px;
+    }
+
+    .header-position span {
+        font-size: 28px;
+    }
+
+    .header-position nav a {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    /* Home */
+    .Home-content img {
+        width: 180px;
+        height: 180px;
+    }
+
+    .Home-content h1,
+    .Home-content h2 {
+        font-size: 28px;
+    }
+
+    .Home-content p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    /* Stats */
+    .stats-section {
+        padding: 40px 20px;
+    }
+
+    .special-section {
+        padding: 60px 20px;
+    }
+
+    .link-section {
+        padding: 40px 20px;
+    }
+
+    /* Notes Header */
+    .notes-header {
+        padding: 30px 20px;
+    }
+
+    .notes-header h1 {
+        font-size: 28px;
+    }
+
+    .semester-section {
+        padding: 30px 20px;
+    }
+
+    /* Events Photos */
+    .event-photos {
+        grid-template-columns: 1fr;
+    }
+
+    .event-photo {
+        height: 200px;
+    }
+
+    /* Chat */
+    .messages-container {
+        height: 300px;
+    }
+
+    .message-bubble {
+        max-width: 90%;
+    }
+
+    /* Footer */
     .footer-bottom {
         padding: 15px;
         font-size: 11px;
     }
 }
 
-/* Extra Small Mobile Fixes */
-@media (max-width: 480px) {
-    /* Events */
-    .event-photos {
-        grid-template-columns: 1fr;
+/* Landscape Mode for Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .Home-content {
+        padding: 20px 15px;
     }
-    
-    .event-photo {
-        height: 200px;
-    }
-    
-    /* Chat */
-    .messages-container {
-        height: 300px;
-    }
-    
-    .message-bubble {
-        max-width: 90%;
-    }
-    
-    /* Forms */
-    .contribute-form,
-    .event-form,
-    .blog-form {
-        padding: 0 10px;
-    }
-    
-    input, select, textarea {
-        font-size: 14px;
-    }
-    
-    button {
-        width: 100%;
-    }
-    
-    /* Filter buttons */
-    .filter-buttons {
-        gap: 8px;
-    }
-    
-    .filter-btn {
-        padding: 5px 12px;
-        font-size: 11px;
-    }
-    
-    /* Search bar */
-    .search-bar {
-        flex-direction: column;
-    }
-    
-    .search-bar button {
-        width: 100%;
-    }
-    
-    /* Notes grid */
-    .subjects-grid,
-    .memes-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    /* Stats section */
-    .stats-grid {
-        gap: 20px;
-    }
-    
-    .box {
-        min-width: 120px;
-        padding: 15px 20px;
-    }
-    
-    .stat-number {
-        font-size: 32px;
-    }
-    
-    .stat-label {
-        font-size: 14px;
-    }
-    
-    /* Special section cards */
-    .special-grid {
-        gap: 20px;
-    }
-    
-    .card {
-        width: 100%;
-        max-width: 280px;
-    }
-}
 
-/* Tablet Specific (768px - 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .events-container,
-    .chat-container {
-        margin: 20px;
+    .Home-content img {
+        width: 150px;
+        height: 150px;
+        margin-bottom: 15px;
     }
-    
-    .footer-container {
-        padding: 40px 25px;
-    }
-    
-    .subjects-grid,
-    .memes-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    }
-}
 
-/* Large Desktop (1200px and above) */
-@media (min-width: 1200px) {
-    .events-container,
-    .chat-container {
-        max-width: 1100px;
-    }
-    
-    .footer-container {
-        max-width: 1100px;
-    }
-}
-
-/* Fix for buttons on mobile */
-@media (max-width: 480px) {
-    .view-btn,
-    .delete-btn,
-    .delete-meme-btn,
-    .delete-event-btn,
-    .delete-blog-btn {
-        width: auto;
-        display: inline-block;
-        margin: 5px 5px 0 0;
-    }
-    
-    .blog-footer {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-    }
-    
-    .event-footer {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-    }
-}
-
-/* Fix for contribute section buttons */
-@media (max-width: 480px) {
-    .contribute-form button,
-    .event-form button,
-    .blog-form button {
-        width: 100%;
-    }
-}
-
-/* Ensure images don't overflow on mobile */
-img {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Fix for meme images on mobile */
-@media (max-width: 480px) {
-    .meme-image {
-        height: 200px;
-    }
-}
-
-/* Fix for lightbox on mobile */
-@media (max-width: 768px) {
-    .lightbox img {
-        max-width: 95%;
-        max-height: 85%;
+    .Home-content p {
+        margin-top: 10px;
     }
 }
