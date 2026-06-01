@@ -48,7 +48,6 @@
     width: 0%;
     height: 2px;
     background: white;
-
     transition: 0.3s ease;
 }
 
@@ -237,7 +236,7 @@
 /* Link-Section */
 
 .link-section {
-    background: linear-gradient(90deg, rgb(83, 6, 6), rgb(206, 41, 41));
+    background: #666666;
     padding: 50px 30px;
     text-align: center;
     color: white;
@@ -252,6 +251,13 @@
     font-size: 18px;
     margin-bottom: 30px;
     opacity: 0.9;
+}
+
+.link-section p span{
+    color: aliceblue;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 34px;
+    font-weight: 100;
 }
 
 .link-buttons {
@@ -274,7 +280,7 @@
 }
 
 .primary-button {
-    background: rgb(165, 117, 117);
+    background: rgb(236, 202, 202);
     transform: scale(1.05);
 }
 
@@ -283,8 +289,87 @@
     transform: scale(1.05);
 }
 
+/* footer */
+.footer {
+    background: linear-gradient(90deg, rgb(161, 19, 19), rgb(136, 36, 36));
+    color: white;
+    margin-top: 50px;
+}
 
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 30px 30px;
+    gap: 30px;
+}
 
+.footer-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-section h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: rgb(230, 80, 80);
+    cursor: default;
+}
+
+.footer-section h3 span {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 35px;
+    font-weight: 100;
+}
+
+.footer-section h4 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: rgb(230, 80, 80);
+}
+
+.footer-section p{
+    font-size: 14px;
+    line-height: 1.6;
+    color: #ccc;
+    font-family: Arial, Helvetica, sans-serif;
+    margin-bottom: 10px;
+}
+
+.footer-section ul{
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li{
+    margin-bottom: 10px;
+}
+
+.footer-section ul li a{
+    color: #ccc;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.footer-section ul li a:hover{
+    color: rgb(230, 80, 80);
+    padding-left: 5px;
+}
+
+.footer-bottom{
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 13px;
+    color: #888;
+}
+
+.footer-bottom p{
+    margin: 5px 0;
+}
 
 
 /* Notes.html */
