@@ -19,6 +19,10 @@
             <a href="Blog.html">Blogs</a>
             <a href="Events-Pic.html">Events</a>
             <a href="Community-Chat.html" class="active">Community Pages</a>
+            <div class="user-info">
+                <span class="user-name" id="userName">Guest</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
         </nav>
     </div>
 
@@ -82,9 +86,9 @@
             <div class="footer-section">
                 <h4>Quick Info</h4>
                 <ul>
-                    <li>0+ Study Notes</li>
-                    <li>0+ past Papers</li>
-                    <li>0+ Real-Time Chat</li>
+                    <li id="footerNotes">0+ Study Notes</li>
+                    <li id="footerPapers">0+ past Papers</li>
+                    <li id="footerChats">0+ Real-Time Chat</li>
                 </ul>
             </div>
         </div>
@@ -97,6 +101,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCGNckn0K7w2bqcsdHgZiE74qjQK-OdcYE",
@@ -109,9 +114,61 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         let currentUser = null;
         let allMessages = [];
+
+        // ========== AUTH CHECK ==========
+        function formatUserName(user) {
+            let name = user.displayName;
+            if (!name) {
+                name = user.email.split('@')[0];
+            }
+            if (name.length > 15) {
+                name = name.substring(0, 12) + '...';
+            }
+            return name;
+        }
+
+        function getCurrentUserId() {
+            return auth.currentUser ? auth.currentUser.uid : null;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userName = formatUserName(user);
+                const userNameSpan = document.getElementById('userName');
+                if (userNameSpan) userNameSpan.innerText = userName;
+            } else {
+                window.location.href = 'Login.html';
+            }
+        });
+
+        // ========== LOGOUT FUNCTION ==========
+        window.logout = async function() {
+            await signOut(auth);
+            window.location.href = 'Login.html';
+        };
+
+        // ========== FOOTER STATS FUNCTION ==========
+        async function updateFooterStats() {
+            try {
+                const notesSnapshot = await getDocs(collection(db, "notes"));
+                const papersSnapshot = await getDocs(collection(db, "pastpapers"));
+                const chatsSnapshot = await getDocs(collection(db, "chats"));
+
+                const footerNotes = document.getElementById('footerNotes');
+                const footerPapers = document.getElementById('footerPapers');
+                const footerChats = document.getElementById('footerChats');
+
+                if (footerNotes) footerNotes.innerHTML = notesSnapshot.size + '+ Study Notes';
+                if (footerPapers) footerPapers.innerHTML = papersSnapshot.size + '+ past Papers';
+                if (footerChats) footerChats.innerHTML = chatsSnapshot.size + '+ Real-Time Chat';
+            } catch (error) {
+                console.error("Error updating footer stats:", error);
+            }
+        }
 
         // Join chat function
         window.joinChat = function() {
@@ -135,7 +192,7 @@
             loadMessages();
         };
         
-        // Send message
+        // Send message (with userId)
         window.sendMessage = async function() {
             if (!currentUser) return;
             
@@ -144,22 +201,29 @@
             
             if (!message) return;
             
+            const currentUserId = getCurrentUserId();
+            
             try {
                 await addDoc(collection(db, "chats"), {
                     username: currentUser,
                     message: message,
+                    userId: currentUserId,  // Owner ID
                     timestamp: new Date().toISOString()
                 });
                 
                 messageInput.value = '';
+                await updateFooterStats();
             } catch (error) {
                 console.error("Error sending message:", error);
                 alert('Error sending message. Please try again.');
             }
         };
         
-        // Load messages real-time
+        // Load messages real-time with loading spinner
         function loadMessages() {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '<div class="loading-container"><div class="loader"></div>Loading messages...</div>';
+            
             const q = query(collection(db, "chats"), orderBy("timestamp", "asc"));
             
             onSnapshot(q, (querySnapshot) => {
@@ -168,15 +232,17 @@
                     allMessages.push({ id: doc.id, ...doc.data() });
                 });
                 displayMessages();
+                updateFooterStats();
             });
         }
         
-        // Display messages
+        // Display messages (Sirf owner ko delete button dikhega)
         function displayMessages() {
             const container = document.getElementById('messagesContainer');
+            const currentUserId = getCurrentUserId();
             
             if (allMessages.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">No messages yet. Be the first to say something!</div>';
+                container.innerHTML = '<div class="loading-container">No messages yet. Be the first to say something!</div>';
                 return;
             }
             
@@ -185,11 +251,15 @@
                 const isOwn = currentUser === msg.username;
                 const time = formatTime(msg.timestamp);
                 
+                // Sirf owner ko delete button dikhega
+                const isOwner = currentUserId && msg.userId === currentUserId;
+                const deleteButton = isOwner ? `<button class="delete-chat-btn" onclick="deleteMessage('${msg.id}')">Delete</button>` : '';
+                
                 html += `
                     <div class="message ${isOwn ? 'own' : 'other'}">
                         <div class="message-bubble">${escapeHtml(msg.message)}</div>
                         <div class="message-info">${escapeHtml(msg.username)} • ${time}</div>
-                        <button class="delete-chat-btn" onclick="deleteMessage('${msg.id}')">Delete</button>
+                        ${deleteButton}
                     </div>
                 `;
             });
@@ -198,15 +268,11 @@
             container.scrollTop = container.scrollHeight;
         }
         
-        // Delete message (admin only)
+        // Delete message (owner delete)
         window.deleteMessage = async function(messageId) {
-            // Admin email check (optional - remove if you want anyone to delete)
-            if (currentUser === 'Admin' || currentUser === 'ShanShah') {
-                if (confirm('Delete this message?')) {
-                    await deleteDoc(doc(db, "chats", messageId));
-                }
-            } else {
-                alert('Only admin can delete messages');
+            if (confirm('Delete this message?')) {
+                await deleteDoc(doc(db, "chats", messageId));
+                await updateFooterStats();
             }
         };
         
@@ -237,6 +303,9 @@
                 sendMessage();
             }
         });
+        
+        // Initial footer stats load
+        updateFooterStats();
     </script>
 </body>
 

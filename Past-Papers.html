@@ -19,6 +19,10 @@
             <a href="Blog.html">Blogs</a>
             <a href="Events-Pic.html">Events</a>
             <a href="Community-Chat.html">Community Pages</a>
+            <div class="user-info">
+                <span class="user-name" id="userName">Guest</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
         </nav>
     </div>
 
@@ -119,9 +123,9 @@
             <div class="footer-section">
                 <h4>Quick Info</h4>
                 <ul>
-                    <li>0+ Study Notes</li>
-                    <li>0+ past Papers</li>
-                    <li>0+ Real-Time Chat</li>
+                    <li id="footerNotes">0+ Study Notes</li>
+                    <li id="footerPapers">0+ past Papers</li>
+                    <li id="footerChats">0+ Real-Time Chat</li>
                 </ul>
             </div>
         </div>
@@ -134,6 +138,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCGNckn0K7w2bqcsdHgZiE74qjQK-OdcYE",
@@ -146,12 +151,66 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         let allPapers = [];
 
+        // ========== AUTH CHECK ==========
+        function formatUserName(user) {
+            let name = user.displayName;
+            if (!name) {
+                name = user.email.split('@')[0];
+            }
+            if (name.length > 15) {
+                name = name.substring(0, 12) + '...';
+            }
+            return name;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userName = formatUserName(user);
+                const userNameSpan = document.getElementById('userName');
+                if (userNameSpan) userNameSpan.innerText = userName;
+            } else {
+                window.location.href = 'Login.html';
+            }
+        });
+
+        // ========== LOGOUT FUNCTION ==========
+        window.logout = async function() {
+            await signOut(auth);
+            window.location.href = 'Login.html';
+        };
+
+        // ========== GET CURRENT USER ID ==========
+        function getCurrentUserId() {
+            return auth.currentUser ? auth.currentUser.uid : null;
+        }
+
+        // ========== FOOTER STATS FUNCTION ==========
+        async function updateFooterStats() {
+            try {
+                const notesSnapshot = await getDocs(collection(db, "notes"));
+                const papersSnapshot = await getDocs(collection(db, "pastpapers"));
+                const chatsSnapshot = await getDocs(collection(db, "chats"));
+
+                const footerNotes = document.getElementById('footerNotes');
+                const footerPapers = document.getElementById('footerPapers');
+                const footerChats = document.getElementById('footerChats');
+
+                if (footerNotes) footerNotes.innerHTML = notesSnapshot.size + '+ Study Notes';
+                if (footerPapers) footerPapers.innerHTML = papersSnapshot.size + '+ past Papers';
+                if (footerChats) footerChats.innerHTML = chatsSnapshot.size + '+ Real-Time Chat';
+            } catch (error) {
+                console.error("Error updating footer stats:", error);
+            }
+        }
+
+        // Load papers from Firebase with loading spinner
         async function loadPapers() {
             const container = document.getElementById('papersContainer');
-            container.innerHTML = '<div class="loading">Loading past papers from Firebase...</div>';
+            container.innerHTML = '<div class="loading-container"><div class="loader"></div>Loading past papers from Firebase...</div>';
 
             try {
                 const q = query(collection(db, "pastpapers"), orderBy("timestamp", "desc"));
@@ -161,17 +220,20 @@
                     allPapers.push({ id: doc.id, ...doc.data() });
                 });
                 displayPapers(allPapers);
+                await updateFooterStats();
             } catch (error) {
                 console.error("Error loading papers:", error);
-                container.innerHTML = '<div class="loading">Error loading past papers.</div>';
+                container.innerHTML = '<div class="loading-container">Error loading past papers.</div>';
             }
         }
 
+        // Display papers (Sirf owner ko delete button dikhega)
         function displayPapers(papers) {
             const container = document.getElementById('papersContainer');
+            const currentUserId = getCurrentUserId();
 
             if (papers.length === 0) {
-                container.innerHTML = '<div class="loading">No past papers yet. Be the first to share!</div>';
+                container.innerHTML = '<div class="loading-container">No past papers yet. Be the first to share!</div>';
                 return;
             }
 
@@ -193,7 +255,10 @@
                     html += '<h2 class="semester-title">' + sem + '</h2>';
                     html += '<div class="subjects-grid">';
                     semesterGroups[sem].forEach(paper => {
-                        const deleteButton = '<button class="delete-btn" onclick="window.deletePaper(\'' + paper.id + '\')">Delete</button>';
+                        // Sirf owner ko delete button dikhega
+                        const isOwner = currentUserId && paper.userId === currentUserId;
+                        const deleteButton = isOwner ? '<button class="delete-btn" onclick="window.deletePaper(\'' + paper.id + '\')">Delete</button>' : '';
+
                         html += `
                             <div class="subject-card">
                                 <div class="subject-title">` + escapeHtml(paper.subject) + `</div>
@@ -209,6 +274,7 @@
             container.innerHTML = html;
         }
 
+        // Upload paper to Firebase (with userId)
         window.uploadPaper = async function () {
             const subject = document.getElementById('subjectName').value;
             const semester = document.getElementById('semesterSelect').value;
@@ -217,6 +283,12 @@
 
             if (!subject || !semester || !examType || !driveLink) {
                 alert('Please fill all fields!');
+                return;
+            }
+
+            const currentUserId = getCurrentUserId();
+            if (!currentUserId) {
+                alert('Please login first!');
                 return;
             }
 
@@ -233,6 +305,7 @@
                     fileUrl: driveLink,
                     isGoogleDrive: true,
                     downloads: 0,
+                    userId: currentUserId,  // Owner ID
                     timestamp: new Date().toISOString()
                 });
 
@@ -243,6 +316,7 @@
                 document.getElementById('examTypeSelect').value = '';
                 document.getElementById('driveLink').value = '';
                 await loadPapers();
+                await updateFooterStats();
                 setTimeout(() => {
                     msgDiv.style.display = 'none';
                 }, 3000);
@@ -252,10 +326,12 @@
             }
         };
 
+        // Delete paper (sirf owner delete kar sakta hai)
         window.deletePaper = async function (paperId) {
             if (confirm('Delete this past paper?')) {
                 await deleteDoc(doc(db, "pastpapers", paperId));
                 await loadPapers();
+                await updateFooterStats();
                 alert('Deleted!');
             }
         };

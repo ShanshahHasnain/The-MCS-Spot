@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The MCS Spot - Home</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="header-position">
         <h1>THE <i><span>MCS</span></i> SPOT</h1>
@@ -16,6 +18,10 @@
             <a href="Blog.html">Blogs</a>
             <a href="Events-Pic.html">Events</a>
             <a href="Community-Chat.html">Community Pages</a>
+            <div class="user-info">
+                <span class="user-name" id="userName">Guest</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
         </nav>
     </div>
 
@@ -24,28 +30,58 @@
         <h1>Welcome to</h1>
         <h2>The <span><i>MCS</i></span> Spot!</h2>
         <p>Your all-in-one student hub for Media & Communication Studies.</p>
-        <p>Here, you can find past papers, notes, study material, memes, updates, and much more to make student life easier and more fun.</p>
-        <p>We also have a community page where students can connect, share ideas, help each other, and stay updated together.</p>
+        <p>Here, you can find past papers, notes, study material, memes, updates, and much more to make student life
+            easier and more fun.</p>
+        <p>We also have a community page where students can connect, share ideas, help each other, and stay updated
+            together.</p>
         <p>The MCS Spot is not just a website — it's a student community.</p>
     </div>
 
     <div class="stats-section">
         <h2>The <span><i>MCS</i></span> Spot by Numbers</h2>
         <div class="stats-grid">
-            <div class="box"><div class="stat-number">0+</div><div class="stat-label">Study Notes</div></div>
-            <div class="box"><div class="stat-number">0+</div><div class="stat-label">Past Papers</div></div>
-            <div class="box"><div class="stat-number">0+</div><div class="stat-label">Funny Memes</div></div>
-            <div class="box"><div class="stat-number">0+</div><div class="stat-label">Active Students</div></div>
+            <div class="box">
+                <div class="stat-number" id="statNotes">0</div>
+                <div class="stat-label">Study Notes</div>
+            </div>
+            <div class="box">
+                <div class="stat-number" id="statPapers">0</div>
+                <div class="stat-label">Past Papers</div>
+            </div>
+            <div class="box">
+                <div class="stat-number" id="statBlogs">0</div>
+                <div class="stat-label">Blogs</div>
+            </div>
+            <div class="box">
+                <div class="stat-number" id="statEvents">0</div>
+                <div class="stat-label">Events</div>
+            </div>
+            <div class="box">
+                <div class="stat-number" id="statStudents">0</div>
+                <div class="stat-label">Active Students</div>
+            </div>
         </div>
     </div>
 
     <div class="special-section">
         <h2>Why THE <span><i>MCS</i></span> SPOT?</h2>
         <div class="special-grid">
-            <div class="card"><h3>Free Study Material</h3><p>All notes and past papers completely free for every MCS student.</p></div>
-            <div class="card"><h3>Stress Relief</h3><p>Take a break with our daily updated meme corner.</p></div>
-            <div class="card"><h3>Community Support</h3><p>Connect with batch friends, share ideas, and help each other.</p></div>
-            <div class="card"><h3>Campus Memories</h3><p>Event photos and blogs to capture your university journey.</p></div>
+            <div class="card">
+                <h3>Free Study Material</h3>
+                <p>All notes and past papers completely free for every MCS student.</p>
+            </div>
+            <div class="card">
+                <h3>Stress Relief</h3>
+                <p>Take a break with our daily updated meme corner.</p>
+            </div>
+            <div class="card">
+                <h3>Community Support</h3>
+                <p>Connect with batch friends, share ideas, and help each other.</p>
+            </div>
+            <div class="card">
+                <h3>Campus Memories</h3>
+                <p>Event photos and blogs to capture your university journey.</p>
+            </div>
         </div>
     </div>
 
@@ -81,22 +117,101 @@
                 <ul>
                     <li><a href="#">Email: shanshahwebdev@gmail.com</a></li>
                     <li><a href="#">Instagram: @macs-product</a></li>
-                    <li><a href="#">Facebook: MCS Spot</a></li>        
+                    <li><a href="#">Facebook: MCS Spot</a></li>
                 </ul>
             </div>
             <div class="footer-section">
                 <h4>Quick Info</h4>
                 <ul>
-                    <li>0+ Study Notes</li>
-                    <li>0+ past Papers</li>
-                    <li>0+ Real-Time Chat</li>
+                    <li id="footerNotes">0+ Study Notes</li>
+                    <li id="footerPapers">0+ past Papers</li>
+                    <li id="footerChats">0+ Real-Time Chat</li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 THE <span><i>MCS</i></span> SPOT | Built For <span><i>MCS</i></span> Students | All Rights Reserved</p>
+            <p>&copy; 2026 THE <span><i>MCS</i></span> SPOT | Built For <span><i>MCS</i></span> Students | All Rights
+                Reserved</p>
             <p>Made by Jollyhood Programmer</p>
         </div>
     </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGNckn0K7w2bqcsdHgZiE74qjQK-OdcYE",
+            authDomain: "the-mcs-spot.firebaseapp.com",
+            projectId: "the-mcs-spot",
+            storageBucket: "the-mcs-spot.firebasestorage.app",
+            messagingSenderId: "670130286214",
+            appId: "1:670130286214:web:c480f810ac47d2e7d72b07"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // ========== AUTH CHECK ==========
+        function formatUserName(user) {
+            let name = user.displayName;
+            if (!name) {
+                name = user.email.split('@')[0];
+            }
+            if (name.length > 15) {
+                name = name.substring(0, 12) + '...';
+            }
+            return name;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userName = formatUserName(user);
+                const userNameSpan = document.getElementById('userName');
+                if (userNameSpan) userNameSpan.innerText = userName;
+            } else {
+                window.location.href = 'Login.html';
+            }
+        });
+
+        // ========== LOGOUT FUNCTION ==========
+        window.logout = async function () {
+            await signOut(auth);
+            window.location.href = 'Login.html';
+        };
+
+        // ========== STATS FUNCTION (Active Students = Registered Users) ==========
+        async function loadStats() {
+            try {
+                const notesSnapshot = await getDocs(collection(db, "notes"));
+                const papersSnapshot = await getDocs(collection(db, "pastpapers"));
+                const blogsSnapshot = await getDocs(collection(db, "blogs"));
+                const eventsSnapshot = await getDocs(collection(db, "events"));
+                const usersSnapshot = await getDocs(collection(db, "users"));
+
+                document.getElementById('statNotes').innerText = notesSnapshot.size;
+                document.getElementById('statPapers').innerText = papersSnapshot.size;
+                document.getElementById('statBlogs').innerText = blogsSnapshot.size;
+                document.getElementById('statEvents').innerText = eventsSnapshot.size;
+                document.getElementById('statStudents').innerText = usersSnapshot.size || 0;
+
+                const footerNotes = document.getElementById('footerNotes');
+                const footerPapers = document.getElementById('footerPapers');
+                const footerChats = document.getElementById('footerChats');
+
+                if (footerNotes) footerNotes.innerHTML = notesSnapshot.size + '+ Study Notes';
+                if (footerPapers) footerPapers.innerHTML = papersSnapshot.size + '+ past Papers';
+                if (footerChats) footerChats.innerHTML = "0+ Real-Time Chat";
+
+            } catch (error) {
+                console.error("Error loading stats:", error);
+            }
+        }
+
+        loadStats();
+    </script>
 </body>
+
 </html>

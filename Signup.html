@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The MCS Spot - Sign Up</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .signup-wrapper {
+            min-height: calc(100vh - 200px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: rgb(243, 235, 225);
+        }
+
+        .signup-card {
+            max-width: 420px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .signup-card h1 {
+            font-size: 28px;
+            color: rgb(153, 41, 41);
+            margin-bottom: 8px;
+        }
+
+        .signup-card .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: rgb(153, 41, 41);
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgb(153, 41, 41);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .signup-btn:hover {
+            background: rgb(180, 50, 50);
+        }
+
+        .login-link {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .login-link a {
+            color: rgb(153, 41, 41);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-position">
+        <h1>THE <i><span>MCS</span></i> SPOT</h1>
+        <nav>
+            <a href="Home.html">Home</a>
+            <a href="Notes.html">Notes</a>
+            <a href="Past-Papers.html">Past-Papers</a>
+            <a href="Blog.html">Blogs</a>
+            <a href="Events-Pic.html">Events</a>
+            <a href="Community-Chat.html">Community Pages</a>
+        </nav>
+    </div>
+
+    <div class="signup-wrapper">
+        <div class="signup-card">
+            <h1>Create Account ✨</h1>
+            <p class="subtitle">Join the MCS student community</p>
+
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="signupName" placeholder="Your full name">
+            </div>
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="signupEmail" placeholder="student@example.com">
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="Min 6 characters">
+            </div>
+
+            <button class="signup-btn" onclick="signUp(event)">Sign Up</button>
+
+            <div class="login-link">
+                Already have an account? <a href="Login.html">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>

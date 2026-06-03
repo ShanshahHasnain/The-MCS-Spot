@@ -18,6 +18,10 @@
             <a href="Blog.html">Blogs</a>
             <a href="Events-Pic.html" class="active">Events</a>
             <a href="Community-Chat.html">Community Pages</a>
+            <div class="user-info">
+                <span class="user-name" id="userName">Guest</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
         </nav>
     </div>
 
@@ -115,9 +119,9 @@
             <div class="footer-section">
                 <h4>Quick Info</h4>
                 <ul>
-                    <li>0+ Study Notes</li>
-                    <li>0+ past Papers</li>
-                    <li>0+ Real-Time Chat</li>
+                    <li id="footerNotes">0+ Study Notes</li>
+                    <li id="footerPapers">0+ past Papers</li>
+                    <li id="footerChats">0+ Real-Time Chat</li>
                 </ul>
             </div>
         </div>
@@ -130,6 +134,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCGNckn0K7w2bqcsdHgZiE74qjQK-OdcYE",
@@ -142,9 +147,62 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         let allEvents = [];
         let tempPhotos = [];
+
+        // ========== AUTH CHECK ==========
+        function formatUserName(user) {
+            let name = user.displayName;
+            if (!name) {
+                name = user.email.split('@')[0];
+            }
+            if (name.length > 15) {
+                name = name.substring(0, 12) + '...';
+            }
+            return name;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userName = formatUserName(user);
+                const userNameSpan = document.getElementById('userName');
+                if (userNameSpan) userNameSpan.innerText = userName;
+            } else {
+                window.location.href = 'Login.html';
+            }
+        });
+
+        // ========== LOGOUT FUNCTION ==========
+        window.logout = async function() {
+            await signOut(auth);
+            window.location.href = 'Login.html';
+        };
+
+        // ========== GET CURRENT USER ID ==========
+        function getCurrentUserId() {
+            return auth.currentUser ? auth.currentUser.uid : null;
+        }
+
+        // ========== FOOTER STATS FUNCTION ==========
+        async function updateFooterStats() {
+            try {
+                const notesSnapshot = await getDocs(collection(db, "notes"));
+                const papersSnapshot = await getDocs(collection(db, "pastpapers"));
+                const chatsSnapshot = await getDocs(collection(db, "chats"));
+
+                const footerNotes = document.getElementById('footerNotes');
+                const footerPapers = document.getElementById('footerPapers');
+                const footerChats = document.getElementById('footerChats');
+
+                if (footerNotes) footerNotes.innerHTML = notesSnapshot.size + '+ Study Notes';
+                if (footerPapers) footerPapers.innerHTML = papersSnapshot.size + '+ past Papers';
+                if (footerChats) footerChats.innerHTML = chatsSnapshot.size + '+ Real-Time Chat';
+            } catch (error) {
+                console.error("Error updating footer stats:", error);
+            }
+        }
 
         window.addPhotoToList = async function () {
             let photoLink = document.getElementById('photoLink').value.trim();
@@ -296,9 +354,10 @@
             displayPhotoList();
         };
 
+        // Load events from Firebase with loading spinner
         async function loadEvents() {
             const container = document.getElementById('eventsContainer');
-            container.innerHTML = 'Loading events from Firebase...';
+            container.innerHTML = '<div class="loading-container"><div class="loader"></div>Loading events from Firebase...</div>';
 
             try {
                 const q = query(collection(db, "events"), orderBy("eventDate", "desc"));
@@ -308,17 +367,20 @@
                     allEvents.push({ id: doc.id, ...doc.data() });
                 });
                 displayEvents(allEvents);
+                await updateFooterStats();
             } catch (error) {
                 console.error("Error loading events:", error);
-                container.innerHTML = 'Error loading events';
+                container.innerHTML = '<div class="loading-container">Error loading events</div>';
             }
         }
 
+        // Display events (Sirf owner ko delete button dikhega)
         function displayEvents(events) {
             const container = document.getElementById('eventsContainer');
+            const currentUserId = getCurrentUserId();
 
             if (events.length === 0) {
-                container.innerHTML = 'No events yet. Be the first to share!';
+                container.innerHTML = '<div class="loading-container">No events yet. Be the first to share!</div>';
                 return;
             }
 
@@ -330,6 +392,10 @@
                     photosHtml += `<img src="${photo}" style="width:100%; height:180px; object-fit:cover; border-radius:12px; cursor:pointer;" onclick="openLightbox('${photo}')" onerror="this.src='https://placehold.co/400x250?text=Invalid+Link'">`;
                 });
                 photosHtml += '</div>';
+
+                // Sirf owner ko delete button dikhega
+                const isOwner = currentUserId && event.userId === currentUserId;
+                const deleteButton = isOwner ? '<button style="background:#dc2626; color:white; padding:6px 15px; border:none; border-radius:25px; cursor:pointer;" onclick="deleteEvent(\'' + event.id + '\')">Delete</button>' : '';
 
                 html += `
                     <div style="background:white; border-radius:20px; padding:25px; margin-bottom:30px; box-shadow:0 3px 10px rgba(0,0,0,0.1);">
@@ -345,7 +411,7 @@
                                 <button style="background:transparent; border:none; font-size:20px; cursor:pointer;" onclick="likeEvent('${event.id}', ${event.likes || 0})">❤️</button>
                                 <span id="likes-${event.id}">${event.likes || 0} likes</span>
                             </div>
-                            <button style="background:#dc2626; color:white; padding:6px 15px; border:none; border-radius:25px; cursor:pointer;" onclick="deleteEvent('${event.id}')">Delete</button>
+                            ${deleteButton}
                         </div>
                     </div>
                 `;
@@ -369,6 +435,12 @@
                 return;
             }
 
+            const currentUserId = getCurrentUserId();
+            if (!currentUserId) {
+                alert('Please login first!');
+                return;
+            }
+
             const msgDiv = document.getElementById('successMsg');
             msgDiv.style.display = 'block';
             msgDiv.style.color = '#ffaa00';
@@ -382,6 +454,7 @@
                     description: description,
                     photos: tempPhotos,
                     likes: 0,
+                    userId: currentUserId,  // Owner ID
                     timestamp: new Date().toISOString()
                 });
 
@@ -396,6 +469,7 @@
                 displayPhotoList();
 
                 await loadEvents();
+                await updateFooterStats();
 
                 setTimeout(() => {
                     msgDiv.style.display = 'none';
@@ -418,10 +492,12 @@
             }
         };
 
+        // Delete event (sirf owner delete kar sakta hai)
         window.deleteEvent = async function (eventId) {
             if (confirm('Delete this event?')) {
                 await deleteDoc(doc(db, "events", eventId));
                 await loadEvents();
+                await updateFooterStats();
                 alert('Event deleted');
             }
         };
@@ -461,3 +537,4 @@
         loadEvents();
     </script>
 </body>
+</html>
