@@ -18,8 +18,10 @@
             <a href="Blog.html">Blogs</a>
             <a href="Events-Pic.html">Events</a>
             <a href="Community-Chat.html">Community Pages</a>
+            <a href="Admin-Dashboard.html" id="adminDashboardLink" style="display:none;">Dashboard</a>
             <div class="user-info">
                 <span class="user-name" id="userName">Guest</span>
+                <span id="adminBadge" style="display:none; background:#ff4444; color:white; padding:2px 8px; border-radius:20px; font-size:12px; margin-left:8px;">Admin</span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </nav>
@@ -138,7 +140,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -154,6 +156,31 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // ========== ADMIN LIST ==========
+        const superAdminEmails = ["shanshahwebdev@gmail.com"];
+
+        // ========== CHECK IF USER IS ADMIN (from Firestore role) ==========
+        async function isAdminUser(email) {
+            // Check super admin list first
+            if (superAdminEmails.includes(email)) return true;
+            
+            // Check Firestore users collection for role
+            try {
+                const usersSnapshot = await getDocs(collection(db, "users"));
+                let isAdmin = false;
+                usersSnapshot.forEach((doc) => {
+                    const userData = doc.data();
+                    if (userData.email === email && userData.role === 'admin') {
+                        isAdmin = true;
+                    }
+                });
+                return isAdmin;
+            } catch (error) {
+                console.error("Error checking admin status:", error);
+                return false;
+            }
+        }
+
         // ========== AUTH CHECK ==========
         function formatUserName(user) {
             let name = user.displayName;
@@ -166,11 +193,25 @@
             return name;
         }
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userName = formatUserName(user);
                 const userNameSpan = document.getElementById('userName');
                 if (userNameSpan) userNameSpan.innerText = userName;
+                
+                // Check if user is admin (from Firestore role or super admin list)
+                const adminStatus = await isAdminUser(user.email);
+                
+                const adminBadge = document.getElementById('adminBadge');
+                const adminDashboardLink = document.getElementById('adminDashboardLink');
+                
+                if (adminStatus) {
+                    if (adminBadge) adminBadge.style.display = 'inline-block';
+                    if (adminDashboardLink) adminDashboardLink.style.display = 'inline-block';
+                } else {
+                    if (adminBadge) adminBadge.style.display = 'none';
+                    if (adminDashboardLink) adminDashboardLink.style.display = 'none';
+                }
             } else {
                 window.location.href = 'Login.html';
             }
@@ -182,7 +223,7 @@
             window.location.href = 'Login.html';
         };
 
-        // ========== STATS FUNCTION (Active Students = Registered Users) ==========
+        // ========== STATS FUNCTION ==========
         async function loadStats() {
             try {
                 const notesSnapshot = await getDocs(collection(db, "notes"));

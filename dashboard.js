@@ -8,7 +8,8 @@ import {
     signInWithPopup, 
     GoogleAuthProvider,
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    deleteUser
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { 
     getFirestore, 
@@ -16,7 +17,10 @@ import {
     getDocs, 
     doc, 
     setDoc, 
-    getDoc 
+    getDoc,
+    deleteDoc,
+    query,
+    where
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 // Firebase Configuration
@@ -36,6 +40,14 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
 // ============================================
+// ADMIN LIST (Add admin emails here)
+// ============================================
+const adminEmails = [
+    "shanshahwebdev@gmail.com",  // Admin email
+    // Add more admin emails here if needed
+];
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
@@ -50,6 +62,19 @@ function formatUserName(user) {
     }
     return name;
 }
+
+// Check if current user is admin
+window.isAdmin = function() {
+    const user = auth.currentUser;
+    if (!user) return false;
+    return adminEmails.includes(user.email);
+};
+
+// Get current user role
+window.getUserRole = function() {
+    if (window.isAdmin()) return 'admin';
+    return 'user';
+};
 
 // ============================================
 // EMAIL/PASSWORD SIGNUP
@@ -77,7 +102,8 @@ window.signUp = async function(event) {
         await setDoc(doc(db, "users", userCredential.user.uid), {
             name: name,
             email: email,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            role: 'user'
         });
         
         alert('Account created successfully! Please login.');
@@ -126,7 +152,8 @@ window.googleSignIn = async function() {
             await setDoc(doc(db, "users", user.uid), {
                 name: user.displayName || user.email.split('@')[0],
                 email: user.email,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                role: adminEmails.includes(user.email) ? 'admin' : 'user'
             });
         }
         
@@ -174,11 +201,113 @@ window.getCurrentUserId = function() {
 };
 
 // ============================================
-// CHECK IF USER IS OWNER OF ITEM
+// CHECK IF USER CAN DELETE ITEM (Admin OR Owner)
 // ============================================
-window.isOwner = function(itemUserId) {
+window.canDelete = function(itemUserId) {
+    if (window.isAdmin()) return true;
     const currentUserId = getCurrentUserId();
     return currentUserId && currentUserId === itemUserId;
+};
+
+// ============================================
+// DELETE USER OWN ACCOUNT (Self Delete)
+// ============================================
+window.deleteMyAccount = async function() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('You are not logged in');
+        return;
+    }
+    
+    const confirmDelete = confirm('⚠️ WARNING: This will permanently delete your account and ALL your data (notes, papers, blogs, events, chat messages). This action cannot be undone. Are you sure?');
+    if (!confirmDelete) return;
+    
+    const userId = user.uid;
+    
+    try {
+        // 1. Delete user's notes
+        const notesSnapshot = await getDocs(query(collection(db, "notes"), where("userId", "==", userId)));
+        for (const doc of notesSnapshot.docs) {
+            await deleteDoc(doc.ref);
+        }
+        
+        // 2. Delete user's past papers
+        const papersSnapshot = await getDocs(query(collection(db, "pastpapers"), where("userId", "==", userId)));
+        for (const doc of papersSnapshot.docs) {
+            await deleteDoc(doc.ref);
+        }
+        
+        // 3. Delete user's blogs
+        const blogsSnapshot = await getDocs(query(collection(db, "blogs"), where("userId", "==", userId)));
+        for (const doc of blogsSnapshot.docs) {
+            await deleteDoc(doc.ref);
+        }
+        
+        // 4. Delete user's events
+        const eventsSnapshot = await getDocs(query(collection(db, "events"), where("userId", "==", userId)));
+        for (const doc of eventsSnapshot.docs) {
+            await deleteDoc(doc.ref);
+        }
+        
+        // 5. Delete user's chat messages
+        const chatsSnapshot = await getDocs(query(collection(db, "chats"), where("userId", "==", userId)));
+        for (const doc of chatsSnapshot.docs) {
+            await deleteDoc(doc.ref);
+        }
+        
+        // 6. Delete user document from Firestore
+        await deleteDoc(doc(db, "users", userId));
+        
+        // 7. Delete user from Firebase Authentication
+        await deleteUser(user);
+        
+        alert('Your account has been permanently deleted.');
+        window.location.href = 'Login.html';
+    } catch (error) {
+        console.error("Error deleting account:", error);
+        alert('Error deleting account: ' + error.message);
+    }
+};
+
+// ============================================
+// ADMIN: DELETE ANY USER ACCOUNT
+// ============================================
+window.adminDeleteUser = async function(userId, userEmail) {
+    if (!window.isAdmin()) {
+        alert('Only admin can delete user accounts');
+        return;
+    }
+    
+    const confirmDelete = confirm(`⚠️ Delete user: ${userEmail}? This will delete ALL their data.`);
+    if (!confirmDelete) return;
+    
+    try {
+        // Note: Deleting other users via client SDK is limited
+        // For full admin delete, you'd need Cloud Function
+        // This will delete user's data from Firestore
+        
+        const notesSnapshot = await getDocs(query(collection(db, "notes"), where("userId", "==", userId)));
+        for (const doc of notesSnapshot.docs) await deleteDoc(doc.ref);
+        
+        const papersSnapshot = await getDocs(query(collection(db, "pastpapers"), where("userId", "==", userId)));
+        for (const doc of papersSnapshot.docs) await deleteDoc(doc.ref);
+        
+        const blogsSnapshot = await getDocs(query(collection(db, "blogs"), where("userId", "==", userId)));
+        for (const doc of blogsSnapshot.docs) await deleteDoc(doc.ref);
+        
+        const eventsSnapshot = await getDocs(query(collection(db, "events"), where("userId", "==", userId)));
+        for (const doc of eventsSnapshot.docs) await deleteDoc(doc.ref);
+        
+        const chatsSnapshot = await getDocs(query(collection(db, "chats"), where("userId", "==", userId)));
+        for (const doc of chatsSnapshot.docs) await deleteDoc(doc.ref);
+        
+        await deleteDoc(doc(db, "users", userId));
+        
+        alert(`User ${userEmail} data has been deleted. Note: Authentication account needs to be disabled via Firebase Console.`);
+    } catch (error) {
+        console.error("Error deleting user data:", error);
+        alert('Error deleting user data');
+    }
 };
 
 // ============================================
@@ -195,24 +324,53 @@ window.getTotalUsersCount = async function() {
 };
 
 // ============================================
+// GET ALL USERS (Admin only)
+// ============================================
+window.getAllUsers = async function() {
+    if (!window.isAdmin()) return [];
+    try {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const users = [];
+        usersSnapshot.forEach((doc) => {
+            users.push({ id: doc.id, ...doc.data() });
+        });
+        return users;
+    } catch (error) {
+        console.error("Error getting users:", error);
+        return [];
+    }
+};
+
+// ============================================
 // AUTH STATE LISTENER (WITH EXISTING USER FIX)
 // ============================================
 onAuthStateChanged(auth, async (user) => {
     const userNameSpan = document.getElementById('userName');
+    const adminBadgeSpan = document.getElementById('adminBadge');
+    
     if (user) {
         const userName = formatUserName(user);
         if (userNameSpan) userNameSpan.innerText = userName;
         
-        // ✅ FIX: Ensure user document exists for existing users
-        // Jab bhi user login karega, check karega ki users collection mein document hai ya nahi
-        // Agar nahi hai toh create kar dega
+        // Show admin badge if user is admin
+        if (adminBadgeSpan) {
+            if (adminEmails.includes(user.email)) {
+                adminBadgeSpan.style.display = 'inline-block';
+                adminBadgeSpan.innerText = '👑 Admin';
+            } else {
+                adminBadgeSpan.style.display = 'none';
+            }
+        }
+        
+        // Ensure user document exists for existing users
         try {
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (!userDoc.exists()) {
                 await setDoc(doc(db, "users", user.uid), {
                     name: user.displayName || user.email.split('@')[0],
                     email: user.email,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    role: adminEmails.includes(user.email) ? 'admin' : 'user'
                 });
                 console.log("User document created for existing user:", user.uid);
             }
@@ -231,4 +389,4 @@ onAuthStateChanged(auth, async (user) => {
 // ============================================
 // EXPORTS
 // ============================================
-export { auth, db, formatUserName };
+export { auth, db, formatUserName, adminEmails };

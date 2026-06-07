@@ -21,6 +21,7 @@
             <a href="Community-Chat.html">Community Pages</a>
             <div class="user-info">
                 <span class="user-name" id="userName">Guest</span>
+                <span id="adminBadge" style="display:none; background:#ff4444; color:white; padding:2px 8px; border-radius:20px; font-size:12px; margin-left:8px;">👑 Admin</span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </nav>
@@ -155,6 +156,9 @@
 
         let allPapers = [];
 
+        // ========== ADMIN LIST ==========
+        const adminEmails = ["shanshahwebdev@gmail.com"];
+
         // ========== AUTH CHECK ==========
         function formatUserName(user) {
             let name = user.displayName;
@@ -167,11 +171,33 @@
             return name;
         }
 
+        function isAdmin() {
+            const user = auth.currentUser;
+            if (!user) return false;
+            return adminEmails.includes(user.email);
+        }
+
+        function canDelete(itemUserId) {
+            if (isAdmin()) return true;
+            const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
+            return currentUserId && currentUserId === itemUserId;
+        }
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const userName = formatUserName(user);
                 const userNameSpan = document.getElementById('userName');
                 if (userNameSpan) userNameSpan.innerText = userName;
+                
+                // Show admin badge
+                const adminBadge = document.getElementById('adminBadge');
+                if (adminBadge) {
+                    if (adminEmails.includes(user.email)) {
+                        adminBadge.style.display = 'inline-block';
+                    } else {
+                        adminBadge.style.display = 'none';
+                    }
+                }
             } else {
                 window.location.href = 'Login.html';
             }
@@ -227,10 +253,9 @@
             }
         }
 
-        // Display papers (Sirf owner ko delete button dikhega)
+        // Display papers (Admin OR Owner can delete)
         function displayPapers(papers) {
             const container = document.getElementById('papersContainer');
-            const currentUserId = getCurrentUserId();
 
             if (papers.length === 0) {
                 container.innerHTML = '<div class="loading-container">No past papers yet. Be the first to share!</div>';
@@ -255,9 +280,9 @@
                     html += '<h2 class="semester-title">' + sem + '</h2>';
                     html += '<div class="subjects-grid">';
                     semesterGroups[sem].forEach(paper => {
-                        // Sirf owner ko delete button dikhega
-                        const isOwner = currentUserId && paper.userId === currentUserId;
-                        const deleteButton = isOwner ? '<button class="delete-btn" onclick="window.deletePaper(\'' + paper.id + '\')">Delete</button>' : '';
+                        // Admin OR Owner can delete
+                        const showDelete = canDelete(paper.userId);
+                        const deleteButton = showDelete ? '<button class="delete-btn" onclick="window.deletePaper(\'' + paper.id + '\')">Delete</button>' : '';
 
                         html += `
                             <div class="subject-card">
@@ -305,7 +330,7 @@
                     fileUrl: driveLink,
                     isGoogleDrive: true,
                     downloads: 0,
-                    userId: currentUserId,  // Owner ID
+                    userId: currentUserId,
                     timestamp: new Date().toISOString()
                 });
 
@@ -326,7 +351,7 @@
             }
         };
 
-        // Delete paper (sirf owner delete kar sakta hai)
+        // Delete paper (Admin OR Owner can delete)
         window.deletePaper = async function (paperId) {
             if (confirm('Delete this past paper?')) {
                 await deleteDoc(doc(db, "pastpapers", paperId));

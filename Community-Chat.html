@@ -21,6 +21,7 @@
             <a href="Community-Chat.html" class="active">Community Pages</a>
             <div class="user-info">
                 <span class="user-name" id="userName">Guest</span>
+                <span id="adminBadge" style="display:none; background:#ff4444; color:white; padding:2px 8px; border-radius:20px; font-size:12px; margin-left:8px;">👑 Admin</span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </nav>
@@ -119,6 +120,9 @@
         let currentUser = null;
         let allMessages = [];
 
+        // ========== ADMIN LIST ==========
+        const adminEmails = ["shanshahwebdev@gmail.com"];
+
         // ========== AUTH CHECK ==========
         function formatUserName(user) {
             let name = user.displayName;
@@ -131,6 +135,18 @@
             return name;
         }
 
+        function isAdmin() {
+            const user = auth.currentUser;
+            if (!user) return false;
+            return adminEmails.includes(user.email);
+        }
+
+        function canDelete(itemUserId) {
+            if (isAdmin()) return true;
+            const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
+            return currentUserId && currentUserId === itemUserId;
+        }
+
         function getCurrentUserId() {
             return auth.currentUser ? auth.currentUser.uid : null;
         }
@@ -140,6 +156,16 @@
                 const userName = formatUserName(user);
                 const userNameSpan = document.getElementById('userName');
                 if (userNameSpan) userNameSpan.innerText = userName;
+                
+                // Show admin badge
+                const adminBadge = document.getElementById('adminBadge');
+                if (adminBadge) {
+                    if (adminEmails.includes(user.email)) {
+                        adminBadge.style.display = 'inline-block';
+                    } else {
+                        adminBadge.style.display = 'none';
+                    }
+                }
             } else {
                 window.location.href = 'Login.html';
             }
@@ -207,7 +233,7 @@
                 await addDoc(collection(db, "chats"), {
                     username: currentUser,
                     message: message,
-                    userId: currentUserId,  // Owner ID
+                    userId: currentUserId,
                     timestamp: new Date().toISOString()
                 });
                 
@@ -236,10 +262,9 @@
             });
         }
         
-        // Display messages (Sirf owner ko delete button dikhega)
+        // Display messages (Admin OR Owner can delete)
         function displayMessages() {
             const container = document.getElementById('messagesContainer');
-            const currentUserId = getCurrentUserId();
             
             if (allMessages.length === 0) {
                 container.innerHTML = '<div class="loading-container">No messages yet. Be the first to say something!</div>';
@@ -251,9 +276,9 @@
                 const isOwn = currentUser === msg.username;
                 const time = formatTime(msg.timestamp);
                 
-                // Sirf owner ko delete button dikhega
-                const isOwner = currentUserId && msg.userId === currentUserId;
-                const deleteButton = isOwner ? `<button class="delete-chat-btn" onclick="deleteMessage('${msg.id}')">Delete</button>` : '';
+                // Admin OR Owner can delete
+                const showDelete = canDelete(msg.userId);
+                const deleteButton = showDelete ? `<button class="delete-chat-btn" onclick="deleteMessage('${msg.id}')">Delete</button>` : '';
                 
                 html += `
                     <div class="message ${isOwn ? 'own' : 'other'}">
@@ -268,7 +293,7 @@
             container.scrollTop = container.scrollHeight;
         }
         
-        // Delete message (owner delete)
+        // Delete message (Admin OR Owner can delete)
         window.deleteMessage = async function(messageId) {
             if (confirm('Delete this message?')) {
                 await deleteDoc(doc(db, "chats", messageId));

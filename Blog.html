@@ -21,6 +21,7 @@
             <a href="Community-Chat.html">Community Pages</a>
             <div class="user-info">
                 <span class="user-name" id="userName">Guest</span>
+                <span id="adminBadge" style="display:none; background:#ff4444; color:white; padding:2px 8px; border-radius:20px; font-size:12px; margin-left:8px;">👑 Admin</span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </nav>
@@ -121,6 +122,9 @@
 
         let allBlogs = [];
 
+        // ========== ADMIN LIST ==========
+        const adminEmails = ["shanshahwebdev@gmail.com"];
+
         // ========== AUTH CHECK ==========
         function formatUserName(user) {
             let name = user.displayName;
@@ -133,11 +137,33 @@
             return name;
         }
 
+        function isAdmin() {
+            const user = auth.currentUser;
+            if (!user) return false;
+            return adminEmails.includes(user.email);
+        }
+
+        function canDelete(itemUserId) {
+            if (isAdmin()) return true;
+            const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
+            return currentUserId && currentUserId === itemUserId;
+        }
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const userName = formatUserName(user);
                 const userNameSpan = document.getElementById('userName');
                 if (userNameSpan) userNameSpan.innerText = userName;
+                
+                // Show admin badge
+                const adminBadge = document.getElementById('adminBadge');
+                if (adminBadge) {
+                    if (adminEmails.includes(user.email)) {
+                        adminBadge.style.display = 'inline-block';
+                    } else {
+                        adminBadge.style.display = 'none';
+                    }
+                }
             } else {
                 window.location.href = 'Login.html';
             }
@@ -193,10 +219,9 @@
             }
         }
 
-        // Display blogs (Sirf owner ko delete button dikhega)
+        // Display blogs (Admin OR Owner can delete)
         function displayBlogs(blogs) {
             const container = document.getElementById('blogsContainer');
-            const currentUserId = getCurrentUserId();
 
             if (blogs.length === 0) {
                 container.innerHTML = '<div class="loading-container">No blogs yet. Be the first to write!</div>';
@@ -208,9 +233,9 @@
                 const date = blog.timestamp ? new Date(blog.timestamp).toLocaleDateString() : 'Unknown date';
                 const shortContent = blog.content.length > 200 ? blog.content.substring(0, 200) + '...' : blog.content;
                 
-                // Sirf owner ko delete button dikhega
-                const isOwner = currentUserId && blog.userId === currentUserId;
-                const deleteButton = isOwner ? '<button class="delete-blog-btn" onclick="window.deleteBlog(\'' + blog.id + '\')">Delete</button>' : '';
+                // Admin OR Owner can delete
+                const showDelete = canDelete(blog.userId);
+                const deleteButton = showDelete ? '<button class="delete-blog-btn" onclick="window.deleteBlog(\'' + blog.id + '\')">Delete</button>' : '';
 
                 html += `
                     <div class="blog-card" id="blog-${blog.id}">
@@ -285,7 +310,7 @@
                     author: author,
                     content: content,
                     likes: 0,
-                    userId: currentUserId,  // Owner ID
+                    userId: currentUserId,
                     timestamp: new Date().toISOString()
                 });
 
@@ -325,7 +350,7 @@
             }
         };
 
-        // Delete blog (sirf owner delete kar sakta hai)
+        // Delete blog (Admin OR Owner can delete)
         window.deleteBlog = async function (blogId) {
             if (confirm('Delete this blog?')) {
                 await deleteDoc(doc(db, "blogs", blogId));

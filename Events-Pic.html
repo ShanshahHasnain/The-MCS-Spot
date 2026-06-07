@@ -20,6 +20,7 @@
             <a href="Community-Chat.html">Community Pages</a>
             <div class="user-info">
                 <span class="user-name" id="userName">Guest</span>
+                <span id="adminBadge" style="display:none; background:#ff4444; color:white; padding:2px 8px; border-radius:20px; font-size:12px; margin-left:8px;">👑 Admin</span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </nav>
@@ -152,6 +153,9 @@
         let allEvents = [];
         let tempPhotos = [];
 
+        // ========== ADMIN LIST ==========
+        const adminEmails = ["shanshahwebdev@gmail.com"];
+
         // ========== AUTH CHECK ==========
         function formatUserName(user) {
             let name = user.displayName;
@@ -164,11 +168,33 @@
             return name;
         }
 
+        function isAdmin() {
+            const user = auth.currentUser;
+            if (!user) return false;
+            return adminEmails.includes(user.email);
+        }
+
+        function canDelete(itemUserId) {
+            if (isAdmin()) return true;
+            const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
+            return currentUserId && currentUserId === itemUserId;
+        }
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const userName = formatUserName(user);
                 const userNameSpan = document.getElementById('userName');
                 if (userNameSpan) userNameSpan.innerText = userName;
+                
+                // Show admin badge
+                const adminBadge = document.getElementById('adminBadge');
+                if (adminBadge) {
+                    if (adminEmails.includes(user.email)) {
+                        adminBadge.style.display = 'inline-block';
+                    } else {
+                        adminBadge.style.display = 'none';
+                    }
+                }
             } else {
                 window.location.href = 'Login.html';
             }
@@ -374,10 +400,9 @@
             }
         }
 
-        // Display events (Sirf owner ko delete button dikhega)
+        // Display events (Admin OR Owner can delete)
         function displayEvents(events) {
             const container = document.getElementById('eventsContainer');
-            const currentUserId = getCurrentUserId();
 
             if (events.length === 0) {
                 container.innerHTML = '<div class="loading-container">No events yet. Be the first to share!</div>';
@@ -393,9 +418,9 @@
                 });
                 photosHtml += '</div>';
 
-                // Sirf owner ko delete button dikhega
-                const isOwner = currentUserId && event.userId === currentUserId;
-                const deleteButton = isOwner ? '<button style="background:#dc2626; color:white; padding:6px 15px; border:none; border-radius:25px; cursor:pointer;" onclick="deleteEvent(\'' + event.id + '\')">Delete</button>' : '';
+                // Admin OR Owner can delete
+                const showDelete = canDelete(event.userId);
+                const deleteButton = showDelete ? '<button style="background:#dc2626; color:white; padding:6px 15px; border:none; border-radius:25px; cursor:pointer;" onclick="deleteEvent(\'' + event.id + '\')">Delete</button>' : '';
 
                 html += `
                     <div style="background:white; border-radius:20px; padding:25px; margin-bottom:30px; box-shadow:0 3px 10px rgba(0,0,0,0.1);">
@@ -454,7 +479,7 @@
                     description: description,
                     photos: tempPhotos,
                     likes: 0,
-                    userId: currentUserId,  // Owner ID
+                    userId: currentUserId,
                     timestamp: new Date().toISOString()
                 });
 
@@ -492,7 +517,7 @@
             }
         };
 
-        // Delete event (sirf owner delete kar sakta hai)
+        // Delete event (Admin OR Owner can delete)
         window.deleteEvent = async function (eventId) {
             if (confirm('Delete this event?')) {
                 await deleteDoc(doc(db, "events", eventId));
