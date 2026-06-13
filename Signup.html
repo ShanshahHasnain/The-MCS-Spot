@@ -141,6 +141,62 @@
         </div>
     </div>
 
-    <script type="module" src="dashboard.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGNckn0K7w2bqcsdHgZiE74qjQK-OdcYE",
+            authDomain: "the-mcs-spot.firebaseapp.com",
+            projectId: "the-mcs-spot",
+            storageBucket: "the-mcs-spot.firebasestorage.app",
+            messagingSenderId: "670130286214",
+            appId: "1:670130286214:web:c480f810ac47d2e7d72b07"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Email/Password Signup
+        window.signUp = async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const name = document.getElementById('signupName').value;
+
+            if (!email || !password || !name) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Create user document in Firestore
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    name: name,
+                    email: email,
+                    createdAt: new Date().toISOString(),
+                    role: 'user'
+                });
+                
+                alert('Account created successfully! Please login.');
+                window.location.href = 'Login.html';
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('Email already in use. Please login.');
+                } else {
+                    alert(error.message);
+                }
+            }
+        };
+    </script>
 </body>
 </html>

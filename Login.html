@@ -189,6 +189,67 @@
         </div>
     </div>
 
-    <script type="module" src="dashboard.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGNckn0K7w2bqcsdHgZiE74qjQK-OdcYE",
+            authDomain: "the-mcs-spot.firebaseapp.com",
+            projectId: "the-mcs-spot",
+            storageBucket: "the-mcs-spot.firebasestorage.app",
+            messagingSenderId: "670130286214",
+            appId: "1:670130286214:web:c480f810ac47d2e7d72b07"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Email/Password Login
+        window.login = async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('Please fill email and password');
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'Home.html';
+            } catch (error) {
+                alert('Invalid email or password');
+            }
+        };
+
+        // Google Sign-In
+        window.googleSignIn = async function() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                // Check if user document already exists
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists()) {
+                    await setDoc(doc(db, "users", user.uid), {
+                        name: user.displayName || user.email.split('@')[0],
+                        email: user.email,
+                        createdAt: new Date().toISOString(),
+                        role: 'user'
+                    });
+                }
+                
+                window.location.href = 'Home.html';
+            } catch (error) {
+                console.error("Google sign-in error:", error);
+                alert('Google sign-in failed: ' + error.message);
+            }
+        };
+    </script>
 </body>
 </html>

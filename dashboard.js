@@ -347,18 +347,29 @@ window.getAllUsers = async function() {
 onAuthStateChanged(auth, async (user) => {
     const userNameSpan = document.getElementById('userName');
     const adminBadgeSpan = document.getElementById('adminBadge');
+    const adminDashboardLink = document.getElementById('adminDashboardLink');
     
     if (user) {
         const userName = formatUserName(user);
         if (userNameSpan) userNameSpan.innerText = userName;
         
-        // Show admin badge if user is admin
+        // Show admin badge and dashboard link if user is admin
+        const isUserAdmin = adminEmails.includes(user.email);
+        
         if (adminBadgeSpan) {
-            if (adminEmails.includes(user.email)) {
+            if (isUserAdmin) {
                 adminBadgeSpan.style.display = 'inline-block';
                 adminBadgeSpan.innerText = '👑 Admin';
             } else {
                 adminBadgeSpan.style.display = 'none';
+            }
+        }
+        
+        if (adminDashboardLink) {
+            if (isUserAdmin) {
+                adminDashboardLink.style.display = 'inline-block';
+            } else {
+                adminDashboardLink.style.display = 'none';
             }
         }
         
@@ -370,7 +381,7 @@ onAuthStateChanged(auth, async (user) => {
                     name: user.displayName || user.email.split('@')[0],
                     email: user.email,
                     createdAt: new Date().toISOString(),
-                    role: adminEmails.includes(user.email) ? 'admin' : 'user'
+                    role: isUserAdmin ? 'admin' : 'user'
                 });
                 console.log("User document created for existing user:", user.uid);
             }
@@ -380,6 +391,7 @@ onAuthStateChanged(auth, async (user) => {
         
     } else {
         const currentPath = window.location.pathname;
+        // ✅ FIX: Only redirect if NOT on Login or Signup page
         if (!currentPath.includes('Login.html') && !currentPath.includes('Signup.html')) {
             window.location.href = 'Login.html';
         }
